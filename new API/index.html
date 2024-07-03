@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conversor de Moeda</title>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+<div class="container">
+    <h2>Conversor de Moeda</h2>
+
+    <div class="botoes">
+        <label for="valor">Valor:</label>
+        <input type="number" id="valor" value="100">
+    </div>
+
+    <div class="botoes">
+        <label for="moeda_origem">Moeda de Origem:</label>
+        <input type="text" id="moeda_origem" value="USD">
+    </div>
+
+    <div class="botoes">
+        <label for="moeda_destino">Moeda de Destino:</label>
+        <input type="text" id="moeda_destino" value="EUR">
+    </div>
+
+    <button onclick="converterMoeda()" class="botoes">Converter</button>
+
+    <div id="resultado"></div>
+</div>
+
+<script>
+function converterMoeda() {
+    var valor = document.getElementById('valor').value;
+    var moedaOrigem = document.getElementById('moeda_origem').value.toUpperCase();
+    var moedaDestino = document.getElementById('moeda_destino').value.toUpperCase();
+    var apiKey = '263efff6940b4064aa67bdbcc7f58f87'; 
+
+    var url = `https://openexchangerates.org/api/latest.json?app_id=${apiKey}`;
+
+    // Primeira requisição para obter as taxas de câmbio mais recentes
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            // Verifica se a moeda de origem e de destino estão nas taxas retornadas
+            if (!(moedaOrigem in data.rates)) {
+                throw new Error(`Moeda de origem '${moedaOrigem}' não encontrada.`);
+            }
+            if (!(moedaDestino in data.rates)) {
+                throw new Error(`Moeda de destino '${moedaDestino}' não encontrada.`);
+            }
+
+            // Calcula a taxa de conversão
+            var taxaOrigem = data.rates[moedaOrigem];
+            var taxaDestino = data.rates[moedaDestino];
+            var resultado = (valor / taxaOrigem) * taxaDestino;
+
+            // Exibe o resultado da conversão
+            document.getElementById('resultado').innerHTML = `Resultado da conversão de ${valor} ${moedaOrigem} para ${moedaDestino}: ${resultado.toFixed(2)}`;
+        })
+        .catch(error => {
+            console.error('Erro ao converter moeda:', error);
+            document.getElementById('resultado').innerHTML = 'Erro ao converter moeda. Verifique a console para mais detalhes.';
+        });
+}
+</script>
+
+</body>
+</html>
